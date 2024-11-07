@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adane Ferede's Student System</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+        transition: background-color 0.3s ease;
+    }
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    .container:hover {
+        transform: translateY(-5px);
+    }
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        transition: border-color 0.3s ease;
+    }
+    input:focus, select:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+    button {
+        padding: 12px 24px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    .theme-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+    }
+    #studentDashboard, #step2, #confirmation, #registeredStudents {
+        display: none;
+    }
+    .dashboard-item {
+        background-color: #f8f9fa;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+    .dashboard-item:hover {
+        background-color: #e9ecef;
+    }
+    #courseList, #studentList {
+        list-style-type: none;
+        padding: 0;
+    }
+    #courseList li, #studentList li {
+        margin-bottom: 10px;
+    }
+    .grade {
+        float: right;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+<div class="theme-toggle" onclick="toggleTheme()">🌓</div>
+
+<div class="container" id="mainMenu">
+    <h2>Adane Ferede's Student System</h2>
+    <button onclick="showRegistration()">New Student Registration</button>
+    <button onclick="showLogin()">Student Login</button>
+    <button onclick="showOwnerLogin()">Owner Login</button>
+</div>
+
+<div class="container" id="registrationForm">
+    <h2>Student Registration Form - Step 1</h2>
+    <input type="text" id="firstName" placeholder="First Name" required>
+    <input type="text" id="fatherName" placeholder="Father's Name" required>
+    <input type="text" id="grandfatherName" placeholder="Grandfather's Name" required>
+    <input type="text" id="motherName" placeholder="Mother's Name" required>
+    <input type="date" id="birthDay" required>
+    <input type="text" id="birthPlace" placeholder="Birth Place" required>
+    <input type="text" id="city" placeholder="City" required>
+    <button onclick="nextStep()">Next</button>
+</div>
+
+<div class="container" id="step2">
+    <h2>Student Registration Form - Step 2</h2>
+    <select id="paymentMethod">
+        <option value="telebirr">Telebirr -0936592189 Adane Ferede</option>
+        <option value="cbe">CBE - you know my account</option>
+    </select>
+    <input type="file" id="payment" accept="image/*">
+    <button onclick="registerStudent()">Register</button>
+</div>
+
+<div class="container" id="confirmation">
+    <h2>🎉 Registration Successful! 🎉</h2>
+    <p id="confirmationMessage"></p>
+    <button onclick="showMainMenu()">Back to Main Menu</button>
+</div>
+
+<div class="container" id="loginForm">
+    <h2>Student Portal Login</h2>
+    <input type="text" id="studentId" placeholder="Student ID" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button onclick="login()">Login</button>
+</div>
+
+<div class="container" id="studentDashboard">
+    <h2>Welcome, <span id="studentName"></span>!</h2>
+    <div class="dashboard-item">
+        <h3>Personal Information</h3>
+        <p id="personalInfo"></p>
+    </div>
+    <div class="dashboard-item">
+        <h3>Course Information</h3>
+        <ul id="courseList"></ul>
+    </div>
+    <div class="dashboard-item">
+        <h3>Announcements</h3>
+        <p id="announcements"></p>
+    </div>
+    <button onclick="logout()">Logout</button>
+</div>
+
+<div class="container" id="registeredStudents">
+    <h2>Registered Students</h2>
+    <ul id="studentList"></ul>
+    <button onclick="showMainMenu()">Back to Main Menu</button>
+</div>
+
+<script>
+    function showRegistration() {
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('registrationForm').style.display = 'block';
+    }
+
+    function showLogin() {
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'block';
+    }
+
+    function showOwnerLogin() {
+        const ownerUsername = prompt("Enter owner username:");
+        const ownerPassword = prompt("Enter owner password:");
+        
+        if (ownerUsername === "owner" && ownerPassword === "1212") {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('registeredStudents').style.display = 'block';
+            displayRegisteredStudents();
+        } else {
+            alert("Invalid owner credentials. Access denied.");
+        }
+    }
+
+    function nextStep() {
+        const requiredFields = ['firstName', 'fatherName', 'grandfatherName', 'motherName', 'birthDay', 'birthPlace', 'city'];
+        const allFilled = requiredFields.every(field => document.getElementById(field).value.trim() !== '');
+        
+        if (allFilled) {
+            document.getElementById('registrationForm').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+        } else {
+            alert('Please fill in all fields in Step 1.');
+        }
+    }
+
+    function registerStudent() {
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        const paymentFile = document.getElementById('payment').files[0];
+
+        if (paymentMethod && paymentFile) {
+            const firstName = document.getElementById('firstName').value;
+            let students = JSON.parse(localStorage.getItem('students')) || [];
+            const studentId = generateStudentId();
+            const student = {
+                studentId: studentId,
+                firstName: firstName,
+                fatherName: document.getElementById('fatherName').value,
+                grandfatherName: document.getElementById('grandfatherName').value,
+                motherName: document.getElementById('motherName').value,
+                birthDay: document.getElementById('birthDay').value,
+                birthPlace: document.getElementById('birthPlace').value,
+                city: document.getElementById('city').value,
+                paymentMethod: paymentMethod,
+                payment: paymentFile.name
+            };
+            students.push(student);
+            localStorage.setItem('students', JSON.stringify(students));
+            
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('confirmation').style.display = 'block';
+            document.getElementById('confirmationMessage').innerHTML = `
+                <p>Congratulations, ${firstName}! 🌟 You are now officially registered at AFA School.</p>
+                <p>Your Student ID is: <strong>${studentId}</strong></p>
+                <p>Please use this ID to log in to the student portal.</p>
+                <p>Your classes will start on Monday, September 4, 2024. we are waiting you to see on Monday!</p>
+            `;
+        } else {
+            alert('Please select a payment method and upload the payment receipt.');
+        }
+    }
+
+    function generateStudentId() {
+        return Math.floor(10000 + Math.random() * 90000).toString();
+    }
+
+    function login() {
+        const studentId = document.getElementById('studentId').value;
+        const password = document.getElementById('password').value;
+        
+        if (studentId && password) {
+            const students = JSON.parse(localStorage.getItem('students')) || [];
+            const student = students.find(s => s.studentId === studentId);
+            
+            if (student && password === "12345") { // Simple password for demo purposes
+                showDashboard(student);
+            } else {
+                alert("Invalid credentials. Please try again.");
+            }
+        } else {
+            alert("Please enter both Student ID and Password.");
+        }
+    }
+
+    function showDashboard(student) {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('studentDashboard').style.display = 'block';
+        
+        document.getElementById('studentName').textContent = student.firstName;
+        document.getElementById('personalInfo').innerHTML = `
+            <p><strong>Name:</strong> ${student.firstName} ${student.fatherName} ${student.grandfatherName}</p>
+            <p><strong>Mother's Name:</strong> ${student.motherName}</p>
+            <p><strong>Birth Date:</strong> ${student.birthDay}</p>
+            <p><strong>Birth Place:</strong> ${student.birthPlace}</p>
+            <p><strong>City:</strong> ${student.city}</p>
+        `;
+
+        const courses = [
+            { name: "Mathematics", grade: "A" },
+            { name: "Science", grade: "B+" },
+            { name: "Literature", grade: "A-" },
+            { name: "History", grade: "B" }
+        ];
+
+        const courseList = document.getElementById('courseList');
+        courseList.innerHTML = '';
+        courses.forEach(course => {
+            const li = document.createElement('li');
+            li.innerHTML = `${course.name} <span class="grade">${course.grade}</span>`;
+            courseList.appendChild(li);
+        });
+
+        document.getElementById('announcements').textContent = "Welcome to the new semester! Don't forget to check your course schedule and attend the orientation session on September 1st.";
+    }
+
+    function logout() {
+        document.getElementById('studentDashboard').style.display = 'none';
+        showMainMenu();
+    }
+
+    function displayRegisteredStudents() {
+        const studentList = document.getElementById('studentList');
+        studentList.innerHTML = '';
+        const students = JSON.parse(localStorage.getItem('students')) || [];
+        
+        students.forEach((student, index) => {
+            const li = document.createElement('li');
+            li.textContent = `${index + 1}. ${student.firstName} ${student.fatherName} (ID: ${student.studentId})`;
+            studentList.appendChild(li);
+        });
+    }
+
+    function showMainMenu() {
+        document.getElementById('mainMenu').style.display = 'block';
+        document.getElementById('registrationForm').style.display = 'none';
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('confirmation').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('studentDashboard').style.display = 'none';
+        document.getElementById('registeredStudents').style.display = 'none';
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        if (document.body.classList.contains('dark-mode')) {
+            document.body.style.backgroundColor = '#333';
+            document.body.style.color = '#fff';
+        } else {
+            document.body.style.backgroundColor = '#f0f0f0';
+            document.body.style.color = '#000';
+        }
+    }
+
+    // Initialize the app
+    window.onload = showMainMenu;
+</script>
+</body>
+</html>
+
